@@ -1,0 +1,37 @@
+name: Build and Deploy Hugo site
+
+on:
+  push:
+    branches:
+      - main # or "master", depending on your repo
+  workflow_dispatch: # allow manual trigger
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+
+    steps:
+      # Checkout repo
+      - name: Checkout repository
+        uses: actions/checkout@v4
+        with:
+          submodules: true # fetch Hugo themes if added as submodules
+          fetch-depth: 0 # fetch all history for .GitInfo and .Lastmod
+
+      # Setup Hugo
+      - name: Setup Hugo
+        uses: peaceiris/actions-hugo@v3
+        with:
+          hugo-version: "latest"
+          extended: true
+
+      # Build Hugo site
+      - name: Build
+        run: hugo --minify
+
+      # Deploy to GitHub Pages
+      - name: Deploy
+        uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./public
